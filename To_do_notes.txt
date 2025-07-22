@@ -1,0 +1,48 @@
+Loss functions:
+
+.npy file names (for reference if we just want to look at them)
+seeds, anchors, labels
+
+Parameters that seem to work well for negating loss in the demonstration file:
+lam=110, anchor_lam=250
+lam=110, anchor_lam=100
+lam=100, anchor_lam=100
+
+Keep working with helix.  Anchor X-points
+Primary goal for the next few days:
+Get helix in here.
+Find MSE
+Go watch a numpy tutorial video and become familiar with it.
+*Get loss values for each row (AutoEncoders.py 1314)* include plotting.
+to make predictions use .transform.
+if possible, get to the point that we can remove the problem points in the data and re run it.
+
+We've been able to find the highest loss values, now we need to figure out how to remove them and then re-run the tests.
+Best way I think to do this is to re write to the .npy file after removing the desired pairs.
+
+
+Okay as far as I can tell, I think the loss remover and finder is working, at least on the seed function.  However, it seems that something is making the 
+loss function worse.  It may be how the datat is being read in and there may be data I still need to get rid of.  Now this being said, this is with data we
+have but haven't explored all the way.  The next step I think is taking in the synthetic data and trying to set that up.
+
+06/17/2025:
+Finish automation for loss removal
+mess around with the anchor_lam and see what happens.
+
+Take orriginal autoencoder and identify visually which points we removed. (Graph)
+Using new encoder, take removed points and put them back in to see if it improves their shape. (Auto .plot, S and M .plot_emb)
+Rerun underlying allignment methods (foscttm [go find it in M and S] Line 336 for Spud)
+
+Work with the noisy helix and set it up to SPUD and MASH.  Form there check embeding and scores.  Then remove points and see if that imporoves
+the score by a meaningful amount.
+
+07/08/2025
+Find MSE for each individual point and then compare and graph them.  Find noisy points.
+for each point, take each reconstruction loss and find the squared error.  Use .transform and .inverse_transform for the AE.  To do what we need to do, we'll
+have to nest it roughly as follows.  .transform into .inverse_transform.  np.quantile
+Part two, switch up corrispondants to anchor points.
+Tomorrow see if we can find out how the helix is generated and if it's comparable to the what we have in the embeded and unembeded.
+Updates:  It's comparable and we've been able to check against the original.
+
+Objectives for this week:
+Find and remove the noise points.  Start with Spud and move to mash.  Highlight the noise points on reencoded graph see where they are.

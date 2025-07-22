@@ -1,0 +1,141 @@
+June 6th 2025: Loss function for AutoEncoders.
+X is the train data set, x_hat is the test data set.  Inside the demonstration file we are working with the seeds data.
+Both x, and x_hat's shape are reading in at 40, 4.  Current objective isolate the loss function at a 1-1 ratio across x and x_hat.
+I've been able to isolate the MSE value from the test data.  I have a couple of ideas of wat to do next so let's see what we can do.
+
+We've been having some weird results from the part B when we try to realign it.  I may tinker around with it some, but for now I may move on to trying to 
+get the helix in.
+
+We seem to have figured out the loss function, at least for the b data set.  Pick this up again tomorrow and see if we can continue the work on some of the 
+other practice data sets
+
+Datasets we've worked with:
+Seeds (first one) parts A and B
+Glass (second one) parts A and B
+Diabetes (third one) parts A and B
+MSE changes:
+*** Seeds A:  Original: 0.004225799311634381; Changed: 0.00442431673706518 (worse) ***
+              Lowest:   0.004224073045001481
+              Midean1:  0.004285941238727189 [5,6,20,22]
+              Midean2:  0.004192927267309828 [5,10,20,22]
+              Midean3:  0.0040744242637468205 [5,10,21,22]
+              Midean4:  0.004097671642017357 [5,6,10,21,22]
+Seeds B:  Original: 0.005400128737426707; Changed: 0.004430932130525853 (better)
+Glass A:  Original: 0.014670527285111232; Changed: 0.010953511154806578 (better)
+Glass B:  Original: 0.017626614055222044; Changed: 0.013183675463885974 (better)
+Diabetes A:  Original: 0.02005313982566887; Changed: 0.01885338904310694 (better)
+Diabetes B:  Original: 0.021963137565053997; Changed: 0.02081301729241064 (better)
+
+
+
+
+
+
+percent = 10
+len=50
+10% of 50 = 5
+Mr. GPT recommended doing this:
+percent_value=number * (percent/100)
+
+How anchor points work:
+From my understanding the anchors work as guid points when comparing two manifolds as you combine them.  Part of what happens with MA is when combining the 
+two manifolds in semi supervised learning is that there aren't clear guidlines.  The anchors provide some guidlines.  The way it was explained to me is that
+we match the indexes of the two lists.  This is the list of the anchors in the seed list:
+[[ 28  28] [  6   6] [ 70  70] [ 62  62] [ 57  57] [ 35  35] [ 26  26] [139 139] [ 22  22] [151 151][108 108] [  8   8] [  7   7] [ 23  23] [ 55  55]
+[ 59  59] [129 129] [154 154] [143 143] [ 50  50] [107 107] [ 56  56] [114 114] [150 150] [ 71  71]]
+It's not sorted numerically naturally, so we'll have to do that manually and hope it doesn't mess anything up.  Now when we create a manifold and start 
+editing and removing values from it, it pushes the actual values away.  Example: if we remove point 152 from trainA we would then have to change the first
+index of the anchor data to be 153 so the pair matching would end up being [153,154].  This only gets worse and more complicated when we keep removing 
+points and those points are further down the list not just effecting the last possible point.  Ultimately I think we could end up with something like this
+[25,20]
+I don't know how we're going to get the code to work all the way.
+
+
+psedu code:
+list of removed items=[removed item numbers]
+anchor list=[anchor points]
+
+[0,1]=2nd value 1st row
+[x,0]=first value xth row.
+
+for x in range(anchor list):
+    for y in range(list of removed items)
+        if anchor list [x,0] >= list of removed items [y]
+        anchor list [x,0]= anchor list [x] - 1
+
+
+Okay, we've managed to build out the anchor point adjuster.  Adam has as well, though I'm not sure which one we'll end up using.  And in all honesty I 
+don't quite get what Adam's does or how I would have to use is to make the things work the way I need to.
+
+Friday:  Make sure that we've been working with the right data and acutally creating the correct MSE.  I don't actually know if we are computing it right.
+
+Something weird is going on when we plot everything.  I think the problem is coming from the embeded data.  The good news is that we should be able to 
+manipulate it and clear out the points linking to the points we removed earlier.  My other thought could be that we don't remove the points from the 
+train set and see if that changes anything.
+
+End of the day Tuesday:  I have the helix data in MASH and SPUD.  MASH seems to be working a bit better, as I can run all of the code blocks on it.
+SPUD is giving me some grief as I can't figure out a few of the code blocks that worked with Adam, but now I've reset it and it's throwing errors now.
+Now that being said as far as I can see the raw SPUD functions work just fine.
+Update, I'm back at it today and the errors that were being thrown are no longer being thrown.  Not sure what happened here.
+
+
+100 helix data:
+{'MSE': 0.29942361739797835, 'transform_time': 0.0062160491943359375, 'rec_time': 0.011275291442871094}
+{'MSE': 0.0046505172658760086, 'transform_time': 0.008690834045410156, 'rec_time': 0.0062084197998046875}
+{'MSE': 0.5134891465581951, 'transform_time': 0.008102655410766602, 'rec_time': 0.007018089294433594}
+{'MSE': 0.15838833292838758, 'transform_time': 0.0, 'rec_time': 0.01646280288696289}
+These are probably more relevant
+{'MSE': 0.3017624905893664, 'transform_time': 0.006738901138305664, 'rec_time': 0.0033876895904541016}
+{'MSE': 0.016910941606441857, 'transform_time': 0.0055348873138427734, 'rec_time': 0.0028066635131835938}
+{'MSE': 0.5371419338695621, 'transform_time': 0.005563020706176758, 'rec_time': 0.007639884948730469}
+{'MSE': 0.08742348409886824, 'transform_time': 0.006922006607055664, 'rec_time': 0.005090951919555664}
+
+200 helix data:
+{'MSE': 0.2992491815365419, 'transform_time': 0.01379847526550293, 'rec_time': 0.011898040771484375}
+{'MSE': 0.0017810950633987419, 'transform_time': 0.010838985443115234, 'rec_time': 0.017321348190307617}
+{'MSE': 0.20257854898005564, 'transform_time': 0.011877059936523438, 'rec_time': 0.011680126190185547}
+{'MSE': 0.27124133851818183, 'transform_time': 0.010107040405273438, 'rec_time': 0.005028486251831055}
+These are probably more relevant
+{'MSE': 0.27024629595852273, 'transform_time': 0.014802932739257812, 'rec_time': 0.007923126220703125}
+{'MSE': 0.01596650652528625, 'transform_time': 0.006462574005126953, 'rec_time': 0.00763702392578125}
+{'MSE': 0.23299567408842456, 'transform_time': 0.008070230484008789, 'rec_time': 0.00808572769165039}
+{'MSE': 0.1751565190646455, 'transform_time': 0.006249666213989258, 'rec_time': 0.003825664520263672}
+
+300 helix data:
+{'MSE': 0.2460791635648291, 'transform_time': 0.011522054672241211, 'rec_time': 0.008203506469726562}
+{'MSE': 0.00356560209265443, 'transform_time': 0.008030176162719727, 'rec_time': 0.0040018558502197266}
+{'MSE': 0.23944924303726997, 'transform_time': 0.007005929946899414, 'rec_time': 0.004050731658935547}
+{'MSE': 0.06685128055732124, 'transform_time': 0.0040013790130615234, 'rec_time': 0.003998279571533203}
+These are probably more relevant
+{'MSE': 0.24453232102491418, 'transform_time': 0.004006624221801758, 'rec_time': 0.005000114440917969}
+{'MSE': 0.0016549190553082022, 'transform_time': 0.0040018558502197266, 'rec_time': 0.004513263702392578}
+{'MSE': 0.2143908439009257, 'transform_time': 0.004236698150634766, 'rec_time': 0.00400233268737793}
+{'MSE': 0.0716181338303891, 'transform_time': 0.005010843276977539, 'rec_time': 0.004999876022338867}
+
+300, higher noise:
+{'MSE': 0.2460791635648291, 'transform_time': 0.011818647384643555, 'rec_time': 0.007523298263549805}
+{'MSE': 0.00356560209265443, 'transform_time': 0.005510568618774414, 'rec_time': 0.004001140594482422}
+{'MSE': 0.23944924303726997, 'transform_time': 0.006522178649902344, 'rec_time': 0.00401616096496582}
+{'MSE': 0.06685128055732124, 'transform_time': 0.0035123825073242188, 'rec_time': 0.0049974918365478516}
+These are probably more relevant
+{'MSE': 0.254552919955432, 'transform_time': 0.004154682159423828, 'rec_time': 0.0036306381225585938}
+{'MSE': 0.0103767260876907, 'transform_time': 0.0039942264556884766, 'rec_time': 0.004521608352661133}
+{'MSE': 0.18842946554805837, 'transform_time': 0.005000591278076172, 'rec_time': 0.004251241683959961}
+{'MSE': 0.057593745695968555, 'transform_time': 0.004524946212768555, 'rec_time': 0.004555463790893555}
+
+I ran it at 1000 on both, these were the results:
+{'MSE': 0.014612399672843453, 'transform_time': 0.05659890174865723, 'rec_time': 0.056703805923461914}
+{'MSE': 0.0007407879462975105, 'transform_time': 0.05556845664978027, 'rec_time': 0.04390096664428711}
+{'MSE': 0.37318709686895496, 'transform_time': 0.049169301986694336, 'rec_time': 0.04464411735534668}
+{'MSE': 0.184055356925009, 'transform_time': 0.04976606369018555, 'rec_time': 0.049297332763671875}
+These are probably more relevant
+{'MSE': 0.017454940980863125, 'transform_time': 0.04958534240722656, 'rec_time': 0.05474543571472168}
+{'MSE': 0.009374459307817294, 'transform_time': 0.0600888729095459, 'rec_time': 0.05562996864318848}
+{'MSE': 0.09896435065546694, 'transform_time': 0.049796104431152344, 'rec_time': 0.05237174034118652}
+{'MSE': 0.06891911439210018, 'transform_time': 0.043769121170043945, 'rec_time': 0.03732585906982422}
+
+Combinations creating hightest MSE:
+110, 0.5, 0.4 (MASH at 0.67, SPUD at 0.1)
+110, 0.45, 0.8 (MASH at 0.77, SPUD at 0.06)
+120, 0.5, 0.8 (MASH at 0.80, SPUD at 0.04)
+130, 0.5, 0.8 (MASH at 0.67, SPUD at 0.25)

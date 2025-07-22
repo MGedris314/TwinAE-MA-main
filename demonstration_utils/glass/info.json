@@ -1,0 +1,1 @@
+{"file": "glass", "n_comp": 2, "knn": 4, "method": "SPUD", "split": "distort", "random_state": 42, "FOSCTTM": 0.0014630098698576294, "CE": null, "RF_oob": 0.6752336448598131}
