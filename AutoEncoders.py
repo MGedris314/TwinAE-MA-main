@@ -10,7 +10,7 @@ import os
 import numpy as np
 import torch
 from torch.utils.data import Dataset
-import time
+import time 
 import matplotlib
 from sklearn.metrics import mean_squared_error
 import torch.nn as nn
@@ -81,7 +81,7 @@ class BaseModel:
 
         raise NotImplementedError()
 
-    def fit_transform(self, x):
+    def fit_transform(self, x):  
         """Fit model and transform data.
 
         If model is a dimensionality reduction method, such as an Autoencoder, this should return the embedding of X.
@@ -197,7 +197,7 @@ class BaseModel:
         else:
             plt.show()
 
-    def reconstruct(self, x):
+    def reconstruct(self, x): 
         """Transform and inverse x.
 
         Args:
@@ -236,14 +236,16 @@ class BaseModel:
         stop = time.time()
 
         rec_time = stop - start
+
         MSE = mean_squared_error(x.reshape((n, -1)), x_hat.reshape((n, -1)))
+
         return z, {
             'MSE': MSE,
             'transform_time': transform_time,
             'rec_time': rec_time,
         }
 
-    def view_img_rec(self, x, n=8, random_state=42, title=None, choice='random'):
+    def view_img_rec(self, x, n=8, random_state=42, title=None, choice='random'): 
         """View n original images and their reconstructions.
 
         Only call this method on images dataset. x is expected to be 4D.
@@ -278,7 +280,7 @@ class BaseModel:
             elif choice == 'best':
                 sample_mask = mse_rank[:n]
             else:
-                raise Exception('Choice name should be random, best or worst.')
+                raise Exception('Choice name should be random, best, or worst.')
 
         x_hat = x_hat[sample_mask]
         x = x[sample_mask].reshape(x_hat.shape)
@@ -320,7 +322,7 @@ class BaseModel:
         else:
             plt.show()
 
-    def view_surface_rec(self, x, y, n_max=1000, random_state=42, title=None, dataset_name=None):
+    def view_surface_rec(self, x, y, n_max=1000, random_state=42, title=None, dataset_name=None): 
         """View 3D original surface and reconstruction.
 
         Only call this method on 3D surface datasets. x is expected to be 2D.
@@ -1159,7 +1161,6 @@ class GRAEBase(AE):
         if verbose != 0:
             print('       Fitting GRAE...')
             print('           Fitting manifold learning embedding...')
-        #emb = scipy.stats.zscore(self.embedder.fit_transform(x))  # Normalize embedding
         self.target_embedding = torch.from_numpy(emb).float().to(self.device)
 
         if verbose != 0:
@@ -1237,7 +1238,7 @@ class GRAEBase(AE):
             if self.comet_exp is not None:
                 self.comet_exp.log_metric('relaxation', epoch, epoch=epoch)
 
-    def plot_loss(self, title=None, **kwargs):
+    def plot_loss(self, **kwargs):
         """Plot training loss history.
 
         Uses the recorded loss from each epoch stored in self.history to display a loss curve.
@@ -1255,10 +1256,7 @@ class GRAEBase(AE):
         plt.plot(self.history["epoch"], self.history["loss"], marker='o', label='Training Loss', **kwargs)
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
-        if title!= None:
-            plt.title(title)
-        else:
-            plt.title("Training Loss History")
+        plt.title("Training Loss History")
         plt.legend()
         plt.grid(True)
 
@@ -1268,7 +1266,7 @@ class GRAEBase(AE):
             plt.clf()
         
 
-#primary funcions called.  Use this one.
+
 class GRAEAnchor(GRAEBase):
     """GRAE but with anchor loss applied in the embedding space.
 
@@ -1286,6 +1284,10 @@ class GRAEAnchor(GRAEBase):
 
         super().__init__(**kwargs)
         self.anchor_lam = anchor_lam
+        self.history = {"epoch": [], "loss": [], "anchor_loss": [], "embedding_loss": [], "reconstruction_loss": []}
+        self.anchor_loss = 0
+        self.embedding_loss = 0
+        self.reconstruction_loss = 0
 
     def fit(self, A, emb, anchors, verbose = 0):
         """
@@ -1301,9 +1303,51 @@ class GRAEAnchor(GRAEBase):
         
         super().fit(A, emb, verbose)
 
+    def plot_loss(self, **kwargs):
+        """Plot training loss history.
+
+        Uses the recorded loss from each epoch stored in self.history to display a loss curve.
+        If a comet experiment is attached, the figure is logged instead of displayed.
+
+        plt.show() should be called after this method to display the figure.
+        """
+        import matplotlib.pyplot as plt
+
+        if not self.history["epoch"]:
+            print("No loss history available.")
+            return
+
+        plt.figure(figsize=(8, 6))
+        plt.plot(self.history["epoch"], self.history["loss"], marker='o', label='Training Loss', color='blue', **kwargs)
+        plt.plot(self.history["epoch"], self.history["anchor_loss"], marker='o', label='Anchor Loss', color='red', **kwargs)
+        plt.plot(self.history["epoch"], self.history["embedding_loss"], marker='o', label='Embedding Loss', color='green', **kwargs)
+        plt.plot(self.history["epoch"], self.history["reconstruction_loss"], marker='o', label='Reconstruction Loss', color='orange', **kwargs)
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        plt.title("Training Loss History")
+        plt.legend()
+        plt.grid(True)
+
+        if self.comet_exp is not None:
+            # Log the figure to Comet and clear the plot afterward
+            self.comet_exp.log_figure(figure=plt, figure_name='Training Loss History')
+            plt.clf()
+       
+
+    def update_history(self, epoch):
+        """Log loss history for each epoch."""
+        self.history["epoch"].append(epoch)
+        self.history["loss"].append(self.loss)
+        self.history["anchor_loss"].append(self.anchor_loss.detach().cpu().numpy())
+        self.history["embedding_loss"].append(self.embedding_loss.detach().cpu().numpy())
+        self.history["reconstruction_loss"].append(self.reconstruction_loss.detach().cpu().numpy())
+        self.anchor_loss = 0
+        self.embedding_loss = 0
+        self.reconstruction_loss = 0
+        self.loss = 0
+
     def compute_loss(self, x, x_hat, z, idx):
         """Compute torch-compatible geometric loss.
-        x and x_hat are trying to be the same thing.  X is known and true data, x_hat is predictions.  Both are arrys/tensor
 
         Args:
             x(torch.Tensor): Input batch.
@@ -1311,20 +1355,37 @@ class GRAEAnchor(GRAEBase):
             z(torch.Tensor): Batch embedding (encoder output).
             idx(torch.Tensor): Indices of samples in batch.
 
+            x = np.array([ 
+             [1, 2, 3] ,
+             [0, 0, 0]
+            ])
+            
+            x_hat = np.array([ # Pred
+            [1,2,4],
+            [1,1,1],
+            ])
+            x.shape -> 3, 10
+
+
+
+            
+
         """
         if self.lam > 0:
-            loss = self.criterion(x, x_hat) + self.lam * self.criterion(z, self.target_embedding[idx]) #x is an array/tensor
-            #.shape returns dimensions and how many items are in the dimensions
+            self.reconstruction_loss = self.criterion(x, x_hat)
+            self.embedding_loss = self.criterion(z, self.target_embedding[idx])
+            loss = self.reconstruction_loss + self.lam * self.embedding_loss
         else:
-            loss = self.criterion(x, x_hat)
+            self.reconstruction_loss = self.criterion(x, x_hat)
+            loss = self.reconstruction_loss
 
         #Create a subset of the idexes that are also anchors so we can compare anchor to anchor
         anchor_idx = [i for i in range(len(idx)) if idx[i] in self.anchors[:, 0]]
 
         # Domain Translation loss - We only want to do this if its an anchor point!!!
         if self.anchor_lam > 0 and len(anchor_idx) > 0:
-            loss += self.criterion(self.target_embedding[idx[anchor_idx]], z[anchor_idx]) * self.anchor_lam # I think we should weight this one the most?
-
+            self.anchor_loss = self.criterion(self.target_embedding[idx[anchor_idx]], z[anchor_idx]) * self.anchor_lam # I think we should weight this one the most?
+            loss = self.reconstruction_loss + self.lam * self.embedding_loss + self.anchor_loss
 
         loss.backward()
         self.loss += loss.item()

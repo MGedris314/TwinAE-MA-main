@@ -139,3 +139,10 @@ Combinations creating hightest MSE:
 110, 0.45, 0.8 (MASH at 0.77, SPUD at 0.06)
 120, 0.5, 0.8 (MASH at 0.80, SPUD at 0.04)
 130, 0.5, 0.8 (MASH at 0.67, SPUD at 0.25)
+
+07/24/25
+Update so I know what the hey I've done for this week's update:
+Several graphs have been made depicting a few different things.  One is showing the anchor points after re encode for both MASH and SPUD,we've got one 
+highlighting the values with a difference from the original greater than 1 on both MASH and SPUD.  The other graph we have is one with the noise points on the
+recode values for both MASH and SPUD.  Along with that we have the noise points with difference over one over the noise points (as far as I can tell the 
+difference over one doesn't do great at finding the noise).  Other things we need to get done before Tuesday is working with SPUD and finding the trouble points.
