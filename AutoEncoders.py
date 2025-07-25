@@ -1303,7 +1303,7 @@ class GRAEAnchor(GRAEBase):
         
         super().fit(A, emb, verbose)
 
-    def plot_loss(self, **kwargs):
+    def plot_loss(self, Title=None, **kwargs):
         """Plot training loss history.
 
         Uses the recorded loss from each epoch stored in self.history to display a loss curve.
@@ -1324,7 +1324,10 @@ class GRAEAnchor(GRAEBase):
         plt.plot(self.history["epoch"], self.history["reconstruction_loss"], marker='o', label='Reconstruction Loss', color='orange', **kwargs)
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
-        plt.title("Training Loss History")
+        if Title!=None:
+            plt.title(Title)
+        else:
+            plt.title("Training Loss History")
         plt.legend()
         plt.grid(True)
 

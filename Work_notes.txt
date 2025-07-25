@@ -147,3 +147,18 @@ highlighting the values with a difference from the original greater than 1 on bo
 recode values for both MASH and SPUD.  Along with that we have the noise points with difference over one over the noise points (as far as I can tell the 
 difference over one doesn't do great at finding the noise).  Other things we need to get done before Tuesday is working with SPUD and finding the trouble points.
 Okay we've got the trouble points, and we know where they overlap with the anchors as well.  Removal is going to be fun.
+
+07/25/2025:
+Adam's email from Wednesday, at least the points that I feel that are the most relavent.
+So the steps to do this are:
+-Remove the troublesome points from the data itself and get a clean dataset.
+-Adjust the anchors. Since the anchors work by index, if we remove points, we need to adjust the anchors so they match with the same index. I wrote a 
+function for this already, and you've seen it. I don't remember where its at though.
+-Remove the labels associated with the troublesome points. You are going to want to keep track of the labels for each domain. For simplicity, I often just had
+one labels varaible (as I knew both domains had the same label) but in your case thats no longer true, so you will want to keep a labelsA and a labelsB.
+-When plotting the embedding or scoring the embedding, when it asks for labels it wants the labels from A first, then the labels from B second. You can 
+stack this by doing np.concatenate([labelsA, labelsB]). 
+
+Some helpful things to remember:
+-Spud.emb gets you the embedding points. Spud.emb[:spud.lenA] gets you domain A's embedded points, and spud.emb[spud.lenA:] gets you domain's B's embedded points. 
+-Keep track if the labels is reffering to the embedding labels (requiring the concatenation) or just the single domain.
