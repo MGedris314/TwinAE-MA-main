@@ -146,3 +146,4 @@ Several graphs have been made depicting a few different things.  One is showing 
 highlighting the values with a difference from the original greater than 1 on both MASH and SPUD.  The other graph we have is one with the noise points on the
 recode values for both MASH and SPUD.  Along with that we have the noise points with difference over one over the noise points (as far as I can tell the 
 difference over one doesn't do great at finding the noise).  Other things we need to get done before Tuesday is working with SPUD and finding the trouble points.
+Okay we've got the trouble points, and we know where they overlap with the anchors as well.  Removal is going to be fun.
