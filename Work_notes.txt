@@ -162,3 +162,10 @@ stack this by doing np.concatenate([labelsA, labelsB]).
 Some helpful things to remember:
 -Spud.emb gets you the embedding points. Spud.emb[:spud.lenA] gets you domain A's embedded points, and spud.emb[spud.lenA:] gets you domain's B's embedded points. 
 -Keep track if the labels is reffering to the embedding labels (requiring the concatenation) or just the single domain.
+
+Things to talk about for Tuesday:
+Figure out what they want me doing with passing in the recoding and really understand how it works.
+Run a couple more tests to see why some of the spud formations are the way they are.
+
+
+check all of the overlaps tomorrow and see if we need to change a few things.
